@@ -53,7 +53,7 @@ self.addEventListener("fetch", function (event) {
         }
 
         try {
-          const networkResponse = await fetch(event.request.url);
+          const networkResponse = await fetch(event.request);
           
            if (event.request.url.startsWith('http')) {
               cache.put(event.request, networkResponse.clone());
