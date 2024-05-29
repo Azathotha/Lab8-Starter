@@ -44,21 +44,27 @@ self.addEventListener("fetch", function (event) {
   //            above (CACHE_NAME)
   event.respondWith(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.match(event.request).then((cachedResponse) => {
+      return cache.match(event.request).then(async (cachedResponse) => {
         // B8. TODO - If the request is in the cache, return with the cached version.
         //            Otherwise fetch the resource, add it to the cache, and return
         //            network response.
         if (cachedResponse) {
           return cachedResponse;
         }
-        return (
-          fetch(event.request.url).then((fetchedResponse) => {
-            if (event.request.url.startsWith('http')) {
-              cache.put(event.request, fetchedResponse.clone());
-            }
-            return fetchedResponse;
-          })
-        );
+
+        try {
+          const networkResponse = await fetch(event.request.url);
+          
+           if (event.request.url.startsWith('http')) {
+              cache.put(event.request, networkResponse.clone());
+          }
+          
+          return networkResponse;
+        }
+        catch (error) {
+      console.error('Fetch failed.', error);
+      throw error;
+    }
       });
     })
   );
